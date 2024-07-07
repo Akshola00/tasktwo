@@ -23,10 +23,11 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('firstName', 'lastName', 'email', 'password', 'phone')
+        fields = ('userId', 'firstName', 'lastName', 'email', 'password', 'phone')
 
     def create(self, validated_data):
         user = User.objects.create(
+            userId=str(uuid.uuid4()),
             firstName=validated_data['firstName'],
             lastName=validated_data['lastName'],
             email=validated_data['email'],
@@ -50,17 +51,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
+# class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+#     @classmethod
+#     def get_token(cls, user):
+#         token = super().get_token(user)
 
         
-        token['name'] = user.firstName
-        token['lastname'] = user.lastName
+#         token['name'] = user.firstName
+#         token['lastname'] = user.lastName
         
 
-        return token
+#         return token
     
 
 
@@ -70,7 +71,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
 
         # Add custom claims
-        token['userId'] = user.userId
+        token['userId'] = str(user.userId)
         token['firstName'] = user.firstName
         token['lastName'] = user.lastName
         token['email'] = user.email
@@ -87,7 +88,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             "data": {
                 "accessToken": data.pop('access'),
                 "user": {
-                    "userId": self.user.userId,
+                    "userId": str(self.user.userId),
                     "firstName": self.user.firstName,
                     "lastName": self.user.lastName,
                     "email": self.user.email,
