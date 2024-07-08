@@ -33,11 +33,11 @@ class CustomUserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
-    userId = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    userId = models.CharField(max_length=200, unique=True)
     firstName = models.CharField(max_length=30)
     lastName = models.CharField(max_length=30)
     email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=15, blank=True)
+    phone = models.CharField(max_length=15, blank=True, null=True)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -46,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
     EMAIL_FIELD = 'email'
-    REQUIRED_FIELDS = ['firstName', 'lastName', 'userId']
+    REQUIRED_FIELDS = ['firstName', 'lastName']
 
     def get_full_name(self):
         return f"{self.firstName} {self.lastName}"

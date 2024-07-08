@@ -19,11 +19,11 @@ class RegisterSerializer(serializers.ModelSerializer):
     lastName = serializers.CharField(
         required=True,
     )
-    phone = serializers.CharField()
+    phone = serializers.CharField(required=True,)
 
     class Meta:
         model = User
-        fields = ('userId', 'firstName', 'lastName', 'email', 'password', 'phone')
+        fields = ('firstName', 'lastName', 'email', 'password', 'phone')
 
     def create(self, validated_data):
         user = User.objects.create(
@@ -44,25 +44,13 @@ class RegisterSerializer(serializers.ModelSerializer):
             name=org_name,
             description=f""
         )
-
+        organisation.users.add(user)
         
         organisation.save()
 
         return user
 
 
-# class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-#     @classmethod
-#     def get_token(cls, user):
-#         token = super().get_token(user)
-
-        
-#         token['name'] = user.firstName
-#         token['lastname'] = user.lastName
-        
-
-#         return token
-    
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -81,8 +69,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
+        
+        # Remove the refresh token
+        data.pop('refresh', None)
 
-        data.update({
+        # Reformat the response
+        formatted_data = {
             "status": "success",
             "message": "Login successful",
             "data": {
@@ -95,6 +87,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                     "phone": self.user.phone,
                 }
             }
-        })
+        }
 
-        return data
+        return formatted_data
